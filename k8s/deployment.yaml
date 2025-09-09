@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: podcounter
+  name: podcounter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: podcounter
+  template:
+    metadata:
+      labels:
+        app: podcounter
+    spec:
+      serviceAccountName: podcounter
+      containers:
+        - name: podcounter
+          image: ghcr.io/zauguin/podcounter:latest
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 10m
+            limits:
+              memory: 25Mi

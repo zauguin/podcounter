@@ -1,0 +1,43 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - trunk
+    tags:
+      - '*'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        platform:
+          - linux/amd64
+          # - linux/arm64
+    steps:
+      - uses: actions/checkout@v4
+      - name: Buildah build
+        id: build
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: podcounter
+          tags: latest ${{ github.sha }}
+          containerfiles: |
+            ./Containerfile
+      - name: Push image
+        uses: redhat-actions/push-to-registry@v2
+        id: push
+        with:
+          image: ${{ steps.build.outputs.image }}
+          tags: ${{ steps.build.outputs.tags }}
+          registry: ghcr.io/${{ github.repository_owner }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Print image url
+        run: echo "Image pushed to ${{ steps.push.outputs.registry-paths }}"
+        if: github.event_name != 'pull_request'
