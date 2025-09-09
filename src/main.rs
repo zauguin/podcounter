@@ -13,6 +13,10 @@ use snafu::{Whatever, prelude::*};
 use std::{env, io::Write, mem};
 #[cfg(feature = "server")]
 use tokio::signal;
+use mimalloc::MiMalloc;
+
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
 
 fn find_controller(meta: &mut ObjectMeta) -> Option<&mut OwnerReference> {
     meta.owner_references
